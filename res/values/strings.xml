@@ -4,5 +4,6 @@
     <string name="app_name">Ping Monitor</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="label_ipinput">IP Address to monitor</string>
 
 </resources>
