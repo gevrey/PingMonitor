@@ -6,13 +6,12 @@
  >
 
 <EditText
-    android:id="@+id/nomEdit"
+    android:id="@+id/target"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true"
     android:layout_marginTop="79dp"
-    android:ems="10"
     android:hint="@string/label_ipinput"
     android:inputType="text" >
 
@@ -42,7 +41,7 @@
     android:id="@+id/radioButton1"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/nomEdit"
+    android:layout_below="@+id/target"
     android:layout_centerHorizontal="true"
     android:text="RadioButton" />
 
