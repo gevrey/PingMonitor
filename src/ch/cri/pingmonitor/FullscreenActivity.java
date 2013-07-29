@@ -1,11 +1,13 @@
 package ch.cri.pingmonitor;
 
 import java.io.IOException;
+
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -26,9 +28,10 @@ public class FullscreenActivity extends Activity {
 	// UI View Elements
 	TextView txtStatus;				// TextView that displays the current ping status
 	ToggleButton b1;
+	EditText m_EditText; 
 	
 	Boolean hostActive;
-	String host = "192.168.1.201";
+	String host;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +41,22 @@ public class FullscreenActivity extends Activity {
 		// Set UI View Elements
 		txtStatus = (TextView)findViewById(R.id.txtStatus);
 	    b1 = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
+	    m_EditText = (EditText) findViewById(R.id.target);
 
 	    View.OnClickListener myhandler1 = new View.OnClickListener() {
 		    public void onClick(View v) {
+			    host = m_EditText.getText().toString();
 		        String myString;
 		        myString = "Unreachable";
 		        int myColor;
 		        myColor = Color.WHITE;
 		        txtStatus.setText("");
 		        
+		        if (b1.isChecked()) {
+		        	m_EditText.setEnabled(false);
+		        } else {
+		        	m_EditText.setEnabled(true);
+		        }
 				new pingHostTask().execute();
 		        
 		        Toast.makeText(FullscreenActivity.this, "Host is " + myString, Toast.LENGTH_SHORT).show();
