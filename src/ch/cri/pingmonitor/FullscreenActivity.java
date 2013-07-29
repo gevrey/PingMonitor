@@ -45,6 +45,7 @@ public class FullscreenActivity extends Activity {
 		        myString = "Unreachable";
 		        int myColor;
 		        myColor = Color.WHITE;
+		        txtStatus.setText("");
 		        
 				new pingHostTask().execute();
 		        
@@ -75,7 +76,6 @@ public class FullscreenActivity extends Activity {
 			// before pinging, publish the progress.
 			// In this case, there is no progress, but this allows for the class to update the status textView
 			publishProgress();
-			txtStatus.setText("");
 			// Return the boolean value of pingHost
 			return pingHost();
 		}
