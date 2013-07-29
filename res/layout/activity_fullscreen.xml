@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ android:id="@+id/relativeLayout"
  android:orientation="vertical"
  android:layout_width="fill_parent"
  android:layout_height="fill_parent"
  >
+
+<CheckBox
+    android:id="@+id/checkBox1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentLeft="true"
+    android:layout_below="@+id/target"
+    android:layout_marginLeft="16dp"
+    android:layout_marginTop="16dp"
+    android:hint="@string/checkbox_inactive_hint"
+    android:text="@string/checkbox_inactive" />
 
 <EditText
     android:id="@+id/target"
@@ -11,38 +23,45 @@
     android:layout_height="wrap_content"
     android:layout_alignParentLeft="true"
     android:layout_alignParentTop="true"
-    android:layout_marginTop="79dp"
+    android:layout_marginTop="28dp"
+    android:ems="10"
     android:hint="@string/label_ipinput"
-    android:inputType="text" >
+    android:inputType="text" />
 
-    <requestFocus />
-</EditText>
+<CheckBox
+    android:id="@+id/checkBox2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignLeft="@+id/checkBox1"
+    android:layout_below="@+id/checkBox1"
+    android:text="@string/checkbox_sound" />
 
-<Button
-    android:id="@+id/valider"
+<ToggleButton
+    android:id="@+id/toggleButtonOnOff"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_alignParentRight="true"
-    android:layout_centerVertical="true"
-    android:layout_marginRight="68dp"
-    android:text="valider" />
-
-<Button
-    android:id="@+id/annuler"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_alignBaseline="@+id/valider"
-    android:layout_alignBottom="@+id/valider"
-    android:layout_marginRight="25dp"
-    android:layout_toLeftOf="@+id/valider"
-    android:text="annuler" />
+    android:layout_alignTop="@+id/checkBox1"
+    android:layout_marginRight="24dp"
+    android:checked="false"
+    android:text="@string/button_onoff" />
 
 <RadioButton
     android:id="@+id/radioButton1"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:layout_below="@+id/target"
-    android:layout_centerHorizontal="true"
-    android:text="RadioButton" />
+    android:layout_alignLeft="@+id/checkBox2"
+    android:layout_below="@+id/checkBox2"
+    android:layout_marginTop="28dp"
+    android:checked="true"
+    android:text="@string/radiobutton_active" />
+
+<RadioButton
+    android:id="@+id/radioButton2"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignLeft="@+id/radioButton1"
+    android:layout_centerVertical="true"
+    android:text="@string/radiobutton_inactive" />
 
 </RelativeLayout>

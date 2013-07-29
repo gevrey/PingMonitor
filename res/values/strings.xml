@@ -5,5 +5,11 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="label_ipinput">IP Address to monitor</string>
-
+    <string name="checkbox_inactive">Alert if inactive</string>
+    <string name="checkbox_inactive_hint">You will be alerted if the host becomes unreachable</string>
+    <string name="checkbox_sound">Beep on alert</string>
+    <string name="button_onoff">ON</string>
+    <string name="radiobutton_inactive">Alert if inactive</string>
+    <string name="radiobutton_active">Alert if active</string>
+    
 </resources>
