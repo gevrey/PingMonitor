@@ -96,7 +96,7 @@ public class FullscreenActivity extends Activity {
 		@Override
 		protected void onProgressUpdate(Void... values) {
 			// Simply update the status TextView, to inform the user that the app is currently performing the ping
-			txtStatus.setText("Checking for host");
+			txtStatus.setText("Checking for host " + host);
 		}
 		
 		// This method is what actually pings the host
