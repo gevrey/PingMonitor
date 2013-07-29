@@ -71,6 +71,8 @@ public class FullscreenActivity extends Activity {
 	    b1.setOnClickListener(myhandler1);
     }
 	
+	
+// Code from: http://s0n1c2122.blogspot.fr/2012/12/android-app-turn-on-your-computer-part.html	
 //	 ////
 //	 // AsyncTask class to ping a remote host
 //	 ////
