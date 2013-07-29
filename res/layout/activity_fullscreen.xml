@@ -64,4 +64,14 @@
     android:layout_centerVertical="true"
     android:text="@string/radiobutton_inactive" />
 
+<TextView
+    android:id="@+id/txtStatus"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/radioButton2"
+    android:layout_centerHorizontal="true"
+    android:layout_marginTop="30dp"
+    android:text="@string/textStatus_default"
+    android:textAppearance="?android:attr/textAppearanceLarge" />
+
 </RelativeLayout>

@@ -11,5 +11,6 @@
     <string name="button_onoff">ON</string>
     <string name="radiobutton_inactive">Alert if inactive</string>
     <string name="radiobutton_active">Alert if active</string>
+    <string name="textStatus_default">Status</string>
     
 </resources>
