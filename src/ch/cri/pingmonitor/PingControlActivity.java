@@ -1,12 +1,19 @@
 package ch.cri.pingmonitor;
 
 import java.io.IOException;
+import java.util.Calendar;
 
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -19,7 +26,9 @@ import android.os.AsyncTask;
  *
  * @see SystemUiHider
  */
-public class FullscreenActivity extends Activity {
+
+
+public class PingControlActivity extends Activity {
     /**
      * Whether or not the system UI should be auto-hidden after
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
@@ -28,19 +37,28 @@ public class FullscreenActivity extends Activity {
 	// UI View Elements
 	TextView txtStatus;				// TextView that displays the current ping status
 	ToggleButton b1;
+	Button m_ButtonAlarm;
 	EditText m_EditText; 
 	
 	Boolean hostActive;
 	String host;
 	
+	public class MyAlarmReceiver extends BroadcastReceiver { 
+	     @Override
+	     public void onReceive(Context context, Intent intent) {
+	         Toast.makeText(context, "Alarm went off", Toast.LENGTH_SHORT).show();
+	     }
+	}	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_fullscreen);
+		setContentView(R.layout.activity_pingcontrol);
 	
 		// Set UI View Elements
 		txtStatus = (TextView)findViewById(R.id.txtStatus);
 	    b1 = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
+	    m_ButtonAlarm = (Button) findViewById(R.id.buttonAlarm);
 	    m_EditText = (EditText) findViewById(R.id.target);
 
 	    View.OnClickListener myhandler1 = new View.OnClickListener() {
@@ -59,7 +77,7 @@ public class FullscreenActivity extends Activity {
 		        }
 				new pingHostTask().execute();
 		        
-		        Toast.makeText(FullscreenActivity.this, "Host is " + myString, Toast.LENGTH_SHORT).show();
+		        Toast.makeText(PingControlActivity.this, "Host is " + myString, Toast.LENGTH_SHORT).show();
 		    	
 		    	View mlayout= findViewById(R.id.relativeLayout);
 		    	// set the color 
@@ -71,6 +89,20 @@ public class FullscreenActivity extends Activity {
 		    };
 	    };
 	    b1.setOnClickListener(myhandler1);
+
+	    View.OnClickListener handlerButtonAlarm = new View.OnClickListener() {
+		    public void onClick(View v) {
+		        Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();
+		        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+		        Intent intent = new Intent(this, MyAlarmReceiver.class);
+		        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+		        Calendar time = Calendar.getInstance();
+		        time.setTimeInMillis(System.currentTimeMillis());
+		        time.add(Calendar.SECOND, 30);
+		        alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);		        
+		    };
+	    };
+	    m_ButtonAlarm.setOnClickListener(handlerButtonAlarm);		
 	}	
 	
 	
@@ -137,6 +169,5 @@ public class FullscreenActivity extends Activity {
 			}
 		}
 	}
-	
 	
 }
