@@ -46,7 +46,7 @@ public class PingControlActivity extends Activity {
 	public class MyAlarmReceiver extends BroadcastReceiver { 
 	     @Override
 	     public void onReceive(Context context, Intent intent) {
-	         Toast.makeText(context, "Alarm went off", Toast.LENGTH_SHORT).show();
+	         Toast.makeText(context, "Alarm went off", Toast.LENGTH_LONG).show();
 	     }
 	}	
 
@@ -94,11 +94,11 @@ public class PingControlActivity extends Activity {
 		    public void onClick(View v) {
 		        Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();
 		        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-		        Intent intent = new Intent(this, MyAlarmReceiver.class);
-		        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, 0);
+		        Intent intent = new Intent(PingControlActivity.this, MyAlarmReceiver.class);
+		        PendingIntent pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
 		        Calendar time = Calendar.getInstance();
 		        time.setTimeInMillis(System.currentTimeMillis());
-		        time.add(Calendar.SECOND, 30);
+		        time.add(Calendar.SECOND, 5);
 		        alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);		        
 		    };
 	    };
