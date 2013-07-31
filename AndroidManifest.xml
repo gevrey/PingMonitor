@@ -24,6 +24,7 @@
             </intent-filter>
         </activity>
 		<receiver android:name=".MyAlarmReceiver" />
-    </application>
+        <service android:name=".MyAlarmService" />
+		</application>
 
 </manifest>

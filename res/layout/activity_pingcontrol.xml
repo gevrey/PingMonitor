@@ -65,12 +65,4 @@
         android:layout_alignLeft="@+id/radioGroup1"
         android:text="@string/checkbox_sound" />
 
-    <Button
-        android:id="@+id/buttonAlarm"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/txtStatus"
-        android:layout_alignLeft="@+id/toggleButtonOnOff"
-        android:text="@string/button_alarm" />
-
 </RelativeLayout>

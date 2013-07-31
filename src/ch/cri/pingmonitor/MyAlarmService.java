@@ -11,7 +11,7 @@ public class MyAlarmService extends Service {
 
 	public void onCreate() {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "MyAlarmService.onCreate()", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "MyAlarmService.onCreate()", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
@@ -27,13 +27,13 @@ public class MyAlarmService extends Service {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		Toast.makeText(this, "MyAlarmService.onDestroy()", Toast.LENGTH_LONG).show();
+		//Toast.makeText(this, "MyAlarmService.onDestroy()", Toast.LENGTH_LONG).show();
 	}
 
 	@Override
 	public void onStart(Intent intent, int startId) {
 		// TODO Auto-generated method stub
-		Toast.makeText(this, "MyAlarmService.onStart()", Toast.LENGTH_LONG).show();
+		Toast.makeText(this, "Ping!", Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
