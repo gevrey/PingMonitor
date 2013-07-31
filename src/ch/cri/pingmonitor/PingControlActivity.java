@@ -1,8 +1,6 @@
 package ch.cri.pingmonitor;
 
 import java.io.IOException;
-import java.util.Calendar;
-
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -36,18 +34,21 @@ public class PingControlActivity extends Activity {
 
 	// UI View Elements
 	TextView txtStatus;				// TextView that displays the current ping status
-	ToggleButton b1;
 	Button m_ButtonAlarm;
 	EditText m_EditText; 
-	
+	ToggleButton m_ButtonOnOff;
 	Boolean hostActive;
 	String host;
+	private PendingIntent pendingIntent;
+	MyAlarmReceiver alarm = new MyAlarmReceiver();
 	
 	public class MyAlarmReceiver extends BroadcastReceiver { 
 	     @Override
 	     public void onReceive(Context context, Intent intent) {
 	         Toast.makeText(context, "Alarm went off", Toast.LENGTH_LONG).show();
 	     }
+//	     public void SetAlarm(Context context) {
+//	     }
 	}	
 
 	@Override
@@ -57,7 +58,7 @@ public class PingControlActivity extends Activity {
 	
 		// Set UI View Elements
 		txtStatus = (TextView)findViewById(R.id.txtStatus);
-	    b1 = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
+		m_ButtonOnOff = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
 	    m_ButtonAlarm = (Button) findViewById(R.id.buttonAlarm);
 	    m_EditText = (EditText) findViewById(R.id.target);
 
@@ -70,7 +71,7 @@ public class PingControlActivity extends Activity {
 		        myColor = Color.WHITE;
 		        txtStatus.setText("");
 		        
-		        if (b1.isChecked()) {
+		        if (m_ButtonOnOff.isChecked()) {
 		        	m_EditText.setEnabled(false);
 		        } else {
 		        	m_EditText.setEnabled(true);
@@ -88,18 +89,29 @@ public class PingControlActivity extends Activity {
 		    	
 		    };
 	    };
-	    b1.setOnClickListener(myhandler1);
+	    m_ButtonOnOff.setOnClickListener(myhandler1);
 
+	    
 	    View.OnClickListener handlerButtonAlarm = new View.OnClickListener() {
 		    public void onClick(View v) {
-		        Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();
+//				alarm.SetAlarm(PingControlActivity.this);
 		        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 		        Intent intent = new Intent(PingControlActivity.this, MyAlarmReceiver.class);
-		        PendingIntent pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
-		        Calendar time = Calendar.getInstance();
-		        time.setTimeInMillis(System.currentTimeMillis());
-		        time.add(Calendar.SECOND, 5);
-		        alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);		        
+		        pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
+		        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 10, pendingIntent); // Millisec * Second * Minute
+		    	
+		        Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();
+
+//		        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+//		        Intent intent = new Intent(PingControlActivity.this, MyAlarmReceiver.class);
+//		        PendingIntent pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
+//		        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 10, pendingIntent); // Millisec * Second * Minute
+
+//		        Calendar time = Calendar.getInstance();
+//		        time.setTimeInMillis(System.currentTimeMillis());
+//		        time.add(Calendar.SECOND, 30);
+//		        alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);		        
+		        
 		    };
 	    };
 	    m_ButtonAlarm.setOnClickListener(handlerButtonAlarm);		
