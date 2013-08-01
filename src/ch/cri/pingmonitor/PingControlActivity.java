@@ -11,10 +11,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -41,16 +46,21 @@ public class PingControlActivity extends Activity {
 	ToggleButton m_ButtonOnOff;
 	Boolean hostActive;
 	String host;
+	RadioGroup m_RadioGroup;
+	CheckBox m_BeepOnAlert;
+	
 	private PendingIntent pendingIntent;
 	MyAlarmReceiver alarm = new MyAlarmReceiver();
 	
 	public class MyAlarmReceiver extends BroadcastReceiver { 
 	     @Override
 	     public void onReceive(Context context, Intent intent) {
-	         Toast.makeText(context, "Alarm went off", Toast.LENGTH_LONG).show();
+	         //Toast.makeText(context, "Ping", Toast.LENGTH_LONG).show();
+	    	 txtStatus.setText("");
+	    	View mlayout= findViewById(R.id.relativeLayout);
+	    	mlayout.setBackgroundColor(Color.WHITE);
+	         new pingHostTask().execute();
 	     }
-//	     public void SetAlarm(Context context) {
-//	     }
 	}	
 
 	@Override
@@ -63,24 +73,38 @@ public class PingControlActivity extends Activity {
 		m_ButtonOnOff = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
 	    m_ButtonAlarm = (Button) findViewById(R.id.buttonAlarm);
 	    m_EditText = (EditText) findViewById(R.id.target);
+	    m_RadioGroup = (RadioGroup) findViewById(R.id.radioGroup1);
+	    m_BeepOnAlert = (CheckBox) findViewById(R.id.checkBox2);
 
 	    View.OnClickListener myhandler1 = new View.OnClickListener() {
 		    public void onClick(View v) {
 			    host = m_EditText.getText().toString();
-		        String myString;
-		        myString = "Unreachable";
+		        //String myString;
+		        //myString = "Unreachable";
 		        int myColor;
 		        myColor = Color.WHITE;
 		        txtStatus.setText("");
 		        
 		        if (m_ButtonOnOff.isChecked()) {
 		        	m_EditText.setEnabled(false);
+
+					registerReceiver(alarm, new IntentFilter("ch.cri.pingmonitor") );
+			        Intent intent = new Intent("ch.cri.pingmonitor");
+			        pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
+			    	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+			        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 2, pendingIntent); // Millisec * Second * Minute
+		        
 		        } else {
 		        	m_EditText.setEnabled(true);
+					txtStatus.setText("");
+		        	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+		        	alarmMgr.cancel(pendingIntent);
+		    		unregisterReceiver(alarm);
 		        }
-				new pingHostTask().execute();
+
+		        //new pingHostTask().execute();
 		        
-		        Toast.makeText(PingControlActivity.this, "Host is " + myString, Toast.LENGTH_SHORT).show();
+		        //Toast.makeText(PingControlActivity.this, "Host is " + myString, Toast.LENGTH_SHORT).show();
 		    	
 		    	View mlayout= findViewById(R.id.relativeLayout);
 		    	// set the color 
@@ -96,15 +120,10 @@ public class PingControlActivity extends Activity {
 	    
 	    View.OnClickListener handlerButtonAlarm = new View.OnClickListener() {
 		    public void onClick(View v) {
-//				alarm.SetAlarm(PingControlActivity.this);
-
-				registerReceiver(alarm, new IntentFilter("ch.cri.pingmonitor") );
-		        Intent intent = new Intent("ch.cri.pingmonitor");
-		        pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
-		    	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-		        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 10, pendingIntent); // Millisec * Second * Minute
-		    	
-		        Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();
+		    	int radioButtonID = m_RadioGroup.getCheckedRadioButtonId();
+		    	View radioButton = m_RadioGroup.findViewById(radioButtonID);
+		    	int idx = m_RadioGroup.indexOfChild(radioButton);
+		    	Toast.makeText(PingControlActivity.this, "RadioButton: " + idx, Toast.LENGTH_SHORT).show();
 		    };
 	    };
 	    m_ButtonAlarm.setOnClickListener(handlerButtonAlarm);		
@@ -132,10 +151,37 @@ public class PingControlActivity extends Activity {
 		protected void onPostExecute(Boolean result) {			
 			hostActive = result;
 			// Update the status TextView depending on the result of the ping
-			if(result) {
-				txtStatus.setText("host " +host+ " found");
-			} else { 
-				txtStatus.setText("host " +host+ " not found");
+	    	int radioButtonID = m_RadioGroup.getCheckedRadioButtonId();
+	    	View radioButton = m_RadioGroup.findViewById(radioButtonID);
+	    	int idx = m_RadioGroup.indexOfChild(radioButton);
+	    	// idx = 0 => Alert if inactive
+	    	// idx = 1 => Alert if active
+	    	if(result) {
+				if (idx == 1) {
+					txtStatus.setText(host + " is active");
+			    	View mlayout= findViewById(R.id.relativeLayout);
+			    	mlayout.setBackgroundColor(Color.GREEN);
+			    	if (m_BeepOnAlert.isChecked()) {
+				        try {
+				            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+				            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+				            r.play();
+				        } catch (Exception e) {}				
+			    	}
+	    		}
+			} else {
+				if (idx == 0) {
+					txtStatus.setText(host + " is inactive");
+			    	View mlayout= findViewById(R.id.relativeLayout);
+			    	mlayout.setBackgroundColor(Color.RED);
+			    	if (m_BeepOnAlert.isChecked()) {
+				        try {
+				            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+				            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+				            r.play();
+				        } catch (Exception e) {}				
+			    	}
+				}
 			}
 		}
 		
@@ -143,7 +189,7 @@ public class PingControlActivity extends Activity {
 		@Override
 		protected void onProgressUpdate(Void... values) {
 			// Simply update the status TextView, to inform the user that the app is currently performing the ping
-			txtStatus.setText("Checking for host " + host);
+			txtStatus.setText("Checking " + host);
 		}
 		
 		// This method is what actually pings the host

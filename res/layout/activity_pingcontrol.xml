@@ -71,6 +71,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/txtStatus"
         android:layout_alignLeft="@+id/toggleButtonOnOff"
-        android:text="@string/button_alarm" />
+        android:text="@string/button_alarm"
+        android:visibility="invisible" />
 
 </RelativeLayout>
