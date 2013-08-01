@@ -1,6 +1,7 @@
 package ch.cri.pingmonitor;
 
 import java.io.IOException;
+
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -8,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
@@ -95,23 +97,14 @@ public class PingControlActivity extends Activity {
 	    View.OnClickListener handlerButtonAlarm = new View.OnClickListener() {
 		    public void onClick(View v) {
 //				alarm.SetAlarm(PingControlActivity.this);
-		        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-		        Intent intent = new Intent(PingControlActivity.this, MyAlarmReceiver.class);
+
+				registerReceiver(alarm, new IntentFilter("ch.cri.pingmonitor") );
+		        Intent intent = new Intent("ch.cri.pingmonitor");
 		        pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
+		    	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 		        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 10, pendingIntent); // Millisec * Second * Minute
 		    	
 		        Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();
-
-//		        AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-//		        Intent intent = new Intent(PingControlActivity.this, MyAlarmReceiver.class);
-//		        PendingIntent pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
-//		        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 10, pendingIntent); // Millisec * Second * Minute
-
-//		        Calendar time = Calendar.getInstance();
-//		        time.setTimeInMillis(System.currentTimeMillis());
-//		        time.add(Calendar.SECOND, 30);
-//		        alarmMgr.set(AlarmManager.RTC_WAKEUP, time.getTimeInMillis(), pendingIntent);		        
-		        
 		    };
 	    };
 	    m_ButtonAlarm.setOnClickListener(handlerButtonAlarm);		
