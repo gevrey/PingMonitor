@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.Calendar;
 
 
+
+
+
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -11,6 +14,7 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -33,7 +37,6 @@ public class PingControlActivity extends Activity {
      * {@link #AUTO_HIDE_DELAY_MILLIS} milliseconds.
      */
 
-	private PendingIntent pendingIntent;
 
 	// UI View Elements
 	TextView txtStatus;				// TextView that displays the current ping status
@@ -42,12 +45,18 @@ public class PingControlActivity extends Activity {
 	ToggleButton m_ButtonOnOff;
 	Boolean hostActive;
 	String host;
+	static final int ALARM = 42;
+	static final String TAG = "PingControlActivity";
+	PendingIntent m_alarmIntent;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pingcontrol);
 	
+		Intent myIntent = new Intent(PingControlActivity.this, AlarmReceiver.class);		
+	    m_alarmIntent = PendingIntent.getBroadcast(PingControlActivity.this, ALARM, myIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
 		// Set UI View Elements
 		txtStatus = (TextView)findViewById(R.id.txtStatus);
 		m_ButtonOnOff = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
@@ -58,28 +67,26 @@ public class PingControlActivity extends Activity {
 		        
 		        int myColor;
 		        myColor = Color.WHITE;
-		        String myString = "Unreachable";
+		        String myString = "Unreachable";			    
 
 		        if (m_ButtonOnOff.isChecked()) {
 		        	m_EditText.setEnabled(false);
 				    host = m_EditText.getText().toString();
 			        txtStatus.setText("");
 
-		   		    Intent myIntent = new Intent(PingControlActivity.this, MyAlarmService.class);		
-				    pendingIntent = PendingIntent.getService(PingControlActivity.this, 0, myIntent, 0);
 				    AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
 				    Calendar calendar = Calendar.getInstance();
 				    calendar.setTimeInMillis(System.currentTimeMillis());
 				    calendar.add(Calendar.SECOND, 10);
 				    //alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pendingIntent);
-				    alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), 1*1000, pendingIntent);			    
+				    alarmManager.setRepeating(AlarmManager.RTC, calendar.getTimeInMillis(), 1*1000, m_alarmIntent);			    
 
 				    //Toast.makeText(PingControlActivity.this, "Alarm set", Toast.LENGTH_SHORT).show();        			        
 			        
 		        } else {
 		        	m_EditText.setEnabled(true);
 		        	AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
-		        	alarmManager.cancel(pendingIntent);
+		        	alarmManager.cancel(m_alarmIntent);
 		        	// Tell the user about what we did.
 		        	//Toast.makeText(PingControlActivity.this, "Cancel!", Toast.LENGTH_LONG).show();
 		        }
@@ -99,7 +106,27 @@ public class PingControlActivity extends Activity {
 	    m_ButtonOnOff.setOnClickListener(myhandler1);
 	}	
 	
-	
+	@Override
+	public void onPause()
+	{
+		super.onPause();
+		Log.d(TAG, "stopping any running alarms");
+    	AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+    	alarmManager.cancel(m_alarmIntent);
+
+		
+	}
+
+	@Override
+	public void onDestroy()
+	{
+		super.onDestroy();
+		Log.d(TAG, "stopping any running alarms");
+    	AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+    	alarmManager.cancel(m_alarmIntent);
+
+	}
+
 	////
 	// AsyncTask class to ping a remote host
 	////
