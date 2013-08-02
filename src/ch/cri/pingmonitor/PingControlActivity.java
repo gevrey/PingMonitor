@@ -1,6 +1,9 @@
 package ch.cri.pingmonitor;
 
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Calendar;
 
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
@@ -15,6 +18,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -44,10 +48,13 @@ public class PingControlActivity extends Activity {
 	Button m_ButtonAlarm;
 	EditText m_EditText; 
 	ToggleButton m_ButtonOnOff;
+	ToggleButton m_ButtonSpeed;
 	Boolean hostActive;
 	String host;
 	RadioGroup m_RadioGroup;
 	CheckBox m_BeepOnAlert;
+	static final String TAG = "PingControlActivity";
+	Integer m_Speed = 5;
 	
 	private PendingIntent pendingIntent;
 	MyAlarmReceiver alarm = new MyAlarmReceiver();
@@ -55,11 +62,13 @@ public class PingControlActivity extends Activity {
 	public class MyAlarmReceiver extends BroadcastReceiver { 
 	     @Override
 	     public void onReceive(Context context, Intent intent) {
-	         //Toast.makeText(context, "Ping", Toast.LENGTH_LONG).show();
-	    	 txtStatus.setText("");
+	        //Toast.makeText(context, "Ping", Toast.LENGTH_LONG).show();
+	    	//txtStatus.setText("");
 	    	View mlayout= findViewById(R.id.relativeLayout);
 	    	mlayout.setBackgroundColor(Color.WHITE);
-	         new pingHostTask().execute();
+    		Log.d(TAG, "-------------------------------------------------------------------------------");
+    		Log.d(TAG, "1) new pingHostTask().execute()");
+	        new pingHostTask().execute();
 	     }
 	}	
 
@@ -71,6 +80,7 @@ public class PingControlActivity extends Activity {
 		// Set UI View Elements
 		txtStatus = (TextView)findViewById(R.id.txtStatus);
 		m_ButtonOnOff = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
+		m_ButtonSpeed = (ToggleButton) findViewById(R.id.toggleButtonSpeed);
 	    m_ButtonAlarm = (Button) findViewById(R.id.buttonAlarm);
 	    m_EditText = (EditText) findViewById(R.id.target);
 	    m_RadioGroup = (RadioGroup) findViewById(R.id.radioGroup1);
@@ -83,20 +93,28 @@ public class PingControlActivity extends Activity {
 		        //myString = "Unreachable";
 		        int myColor;
 		        myColor = Color.WHITE;
-		        txtStatus.setText("");
+		        //txtStatus.setText("");
 		        
 		        if (m_ButtonOnOff.isChecked()) {
+		    		Log.d(TAG, "starting pings");
 		        	m_EditText.setEnabled(false);
 
-					registerReceiver(alarm, new IntentFilter("ch.cri.pingmonitor") );
-			        Intent intent = new Intent("ch.cri.pingmonitor");
+		        	registerReceiver(alarm, new IntentFilter("ch.cri.pingmonitor") );
+
+		        	Intent intent = new Intent("ch.cri.pingmonitor");
 			        pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
 			    	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-			        alarmMgr.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 2, pendingIntent); // Millisec * Second * Minute
+			        //alarmMgr.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 1000 * 5, pendingIntent); // Millisec * Second * Minute
+
+			    	Calendar calendar = Calendar.getInstance();
+   		            calendar.setTimeInMillis(System.currentTimeMillis());
+			        calendar.add(Calendar.SECOND, m_Speed);
+			        alarmMgr.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
 		        
 		        } else {
+		    		Log.d(TAG, "stopping pings");
 		        	m_EditText.setEnabled(true);
-					txtStatus.setText("");
+					//txtStatus.setText("");
 		        	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
 		        	alarmMgr.cancel(pendingIntent);
 		    		unregisterReceiver(alarm);
@@ -116,7 +134,6 @@ public class PingControlActivity extends Activity {
 		    };
 	    };
 	    m_ButtonOnOff.setOnClickListener(myhandler1);
-
 	    
 	    View.OnClickListener handlerButtonAlarm = new View.OnClickListener() {
 		    public void onClick(View v) {
@@ -127,29 +144,45 @@ public class PingControlActivity extends Activity {
 		    };
 	    };
 	    m_ButtonAlarm.setOnClickListener(handlerButtonAlarm);		
-	}	
-	
+
+	    View.OnClickListener handlerButtonSpeed = new View.OnClickListener() {
+		    public void onClick(View v) {
+		    	if (m_ButtonSpeed.isChecked()) {
+		    		m_Speed = 1;
+		    	} else {
+		    		m_Speed = 5;
+		    	}
+		    };
+	    };
+	    m_ButtonSpeed.setOnClickListener(handlerButtonSpeed);
+	}		    
+
 	
 	////
 	// AsyncTask class to ping a remote host
 	////
-	private class pingHostTask extends AsyncTask<Void, Void, Boolean> {
+	class pingHostTask extends AsyncTask<Void, Void, Boolean> {
 		
-		// This method is what performs the tasks you wish to perform in the background. In this case, it is the ping request.
+		@Override
+		protected void onPreExecute() {
+    		Log.d(TAG, "1.1) onPreExecute");					
+		}
+
+			
+			// This method is what performs the tasks you wish to perform in the background. In this case, it is the ping request.
 		@Override
 		protected Boolean doInBackground(Void... params) {
-			
-			// before pinging, publish the progress.
-			// In this case, there is no progress, but this allows for the class to update the status textView
-			publishProgress();
-			// Return the boolean value of pingHost
+    		Log.d(TAG, "2) doInBackground");		
+			//publishProgress();
 			return pingHost();
 		}
 		
 		// This method is called automatically after the 'doinBackground' tasks have finished
 		@Override
 		protected void onPostExecute(Boolean result) {			
-			hostActive = result;
+    		Log.d(TAG, "3) onPostExecute");		
+    		
+    		hostActive = result;
 			// Update the status TextView depending on the result of the ping
 	    	int radioButtonID = m_RadioGroup.getCheckedRadioButtonId();
 	    	View radioButton = m_RadioGroup.findViewById(radioButtonID);
@@ -157,8 +190,11 @@ public class PingControlActivity extends Activity {
 	    	// idx = 0 => Alert if inactive
 	    	// idx = 1 => Alert if active
 	    	if(result) {
+	    		Log.d(TAG, "4) host active");
 				if (idx == 1) {
-					txtStatus.setText(host + " is active");
+		    		Log.d(TAG, "5) alert host active");
+		    		//txtStatus.setText would be the problem?
+					//txtStatus.setText(host + " is active");
 			    	View mlayout= findViewById(R.id.relativeLayout);
 			    	mlayout.setBackgroundColor(Color.GREEN);
 			    	if (m_BeepOnAlert.isChecked()) {
@@ -168,10 +204,12 @@ public class PingControlActivity extends Activity {
 				            r.play();
 				        } catch (Exception e) {}				
 			    	}
+		    		Log.d(TAG, "6) end alert host active");
 	    		}
 			} else {
+	    		Log.d(TAG, "4) host is inactive");
 				if (idx == 0) {
-					txtStatus.setText(host + " is inactive");
+					//txtStatus.setText(host + " is inactive");
 			    	View mlayout= findViewById(R.id.relativeLayout);
 			    	mlayout.setBackgroundColor(Color.RED);
 			    	if (m_BeepOnAlert.isChecked()) {
@@ -183,41 +221,72 @@ public class PingControlActivity extends Activity {
 			    	}
 				}
 			}
+
+
+        	Intent intent = new Intent("ch.cri.pingmonitor");
+	        pendingIntent = PendingIntent.getBroadcast(PingControlActivity.this, 0, intent, 0);
+	    	AlarmManager alarmMgr = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+	        //alarmMgr.setRepeating(AlarmManager.RTC, System.currentTimeMillis(), 1000 * 5, pendingIntent); // Millisec * Second * Minute
+
+	    	Calendar calendar = Calendar.getInstance();
+	            calendar.setTimeInMillis(System.currentTimeMillis());
+	        calendar.add(Calendar.SECOND, m_Speed);
+	        alarmMgr.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+		
 		}
 		
 		// This method is automatically called when the 'publishProgress' method is called within the 'doInBackground'
-		@Override
-		protected void onProgressUpdate(Void... values) {
-			// Simply update the status TextView, to inform the user that the app is currently performing the ping
-			txtStatus.setText("Checking " + host);
-		}
+//		@Override
+//		protected void onProgressUpdate(Void... values) {
+//			// Simply update the status TextView, to inform the user that the app is currently performing the ping
+//			txtStatus.setText("Checking " + host);
+//		}
 		
 		// This method is what actually pings the host
 		private boolean pingHost() {
 			
-			Process p1 = null;		// Create a process object, which will be used to perform the ping
-			int returnVal = 0;		// Set ping return status to 0, which automatically declares it as fail
+			//Process p1 = null;		// Create a process object, which will be used to perform the ping
+			//int returnVal = 0;		// Set ping return status to 0, which automatically declares it as fail
 
-			try {
-				// Since Android is Unix base, we can perform a unix ping command. This will return 0 if the ping was unsuccessful, or 1 if the ping returned true
-				p1 = java.lang.Runtime.getRuntime().exec("ping -c 1 " + host);
-			} catch (IOException e) {
-				Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_LONG).show();
-			}
-
-			try {
-				returnVal = p1.waitFor();
-			} catch (InterruptedException e) {
-				Toast.makeText(getBaseContext(), e.getMessage().toString(), Toast.LENGTH_LONG).show();
-			}
+		    try {
+		        return InetAddress.getByName(host).isReachable(1000); 
+		    } catch (UnknownHostException e) {
+		        e.printStackTrace();
+		    } catch (IOException e) {
+		        e.printStackTrace();
+		    }
+		    return false; 			
 			
-			// return true or false, depending on the status of ping
-			if (returnVal == 0) {
-				return true;
+// Changed to isReachable as "/system/bin/ping -c 1 -W 1 -w 1 " doesn't return (waitFor doesn't exit) when host does not ping back
+		    
+//    		try {
+//				// Since Android is Unix base, we can perform a unix ping command. This will return 0 if the ping was unsuccessful, or 1 if the ping returned true
+//				Log.d(TAG, "ping start");
+//				//p1 = java.lang.Runtime.getRuntime().exec("/system/bin/ping -c 1 -W 1 -w 1 " + host);
+//				p1 = java.lang.Runtime.getRuntime().exec(new String[] { "ping", "-c 1", "-W 1", host });
+//				Log.d(TAG, "ping end");
+//			} catch (IOException e) {
+//				Log.d(TAG, "Exception: " + e.getMessage().toString());
+//			}
+//
+//			try {
+//				Log.d(TAG, "waitFor start");
+//				returnVal = p1.waitFor();
+//				Log.d(TAG, "waitFor end");
+//			} catch (InterruptedException e) {
+//				Log.d(TAG, "Exception: " + e.getMessage().toString());
+//			}
+//			
+//			Log.d(TAG, "returnVal: " + returnVal);
+//			// return true or false, depending on the status of ping
+//			if (returnVal == 0) {
+//				return true;
+//
+//			} else {
+//				return false;
+//			}
 
-			} else {
-				return false;
-			}
+		
 		}
 	}
 	

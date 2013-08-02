@@ -74,4 +74,14 @@
         android:text="@string/button_alarm"
         android:visibility="invisible" />
 
+    <ToggleButton
+        android:id="@+id/toggleButtonSpeed"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/buttonAlarm"
+        android:layout_below="@+id/radioGroup1"
+        android:text="@string/button_speed_fast"
+        android:textOff="@string/button_speed_fast"
+        android:textOn="@string/button_speed_fast" />
+
 </RelativeLayout>
