@@ -84,7 +84,7 @@ public class PingControlActivity extends Activity {
 	    m_ButtonAlarm = (Button) findViewById(R.id.buttonAlarm);
 	    m_EditText = (EditText) findViewById(R.id.target);
 	    m_RadioGroup = (RadioGroup) findViewById(R.id.radioGroup1);
-	    m_BeepOnAlert = (CheckBox) findViewById(R.id.checkBox2);
+	    m_BeepOnAlert = (CheckBox) findViewById(R.id.checkBoxBeep);
 
 	    View.OnClickListener myhandler1 = new View.OnClickListener() {
 		    public void onClick(View v) {
@@ -93,7 +93,7 @@ public class PingControlActivity extends Activity {
 		        //myString = "Unreachable";
 		        int myColor;
 		        myColor = Color.WHITE;
-		        //txtStatus.setText("");
+		        txtStatus.setText("");
 		        
 		        if (m_ButtonOnOff.isChecked()) {
 		    		Log.d(TAG, "starting pings");
@@ -165,7 +165,8 @@ public class PingControlActivity extends Activity {
 		
 		@Override
 		protected void onPreExecute() {
-    		Log.d(TAG, "1.1) onPreExecute");					
+    		Log.d(TAG, "1.1) onPreExecute");		
+    		txtStatus.setText("Checking " + host);
 		}
 
 			
@@ -191,10 +192,10 @@ public class PingControlActivity extends Activity {
 	    	// idx = 1 => Alert if active
 	    	if(result) {
 	    		Log.d(TAG, "4) host active");
+				txtStatus.setText(host + " is active");
 				if (idx == 1) {
 		    		Log.d(TAG, "5) alert host active");
 		    		//txtStatus.setText would be the problem?
-					//txtStatus.setText(host + " is active");
 			    	View mlayout= findViewById(R.id.relativeLayout);
 			    	mlayout.setBackgroundColor(Color.GREEN);
 			    	if (m_BeepOnAlert.isChecked()) {
@@ -208,8 +209,8 @@ public class PingControlActivity extends Activity {
 	    		}
 			} else {
 	    		Log.d(TAG, "4) host is inactive");
+				txtStatus.setText(host + " is inactive");
 				if (idx == 0) {
-					//txtStatus.setText(host + " is inactive");
 			    	View mlayout= findViewById(R.id.relativeLayout);
 			    	mlayout.setBackgroundColor(Color.RED);
 			    	if (m_BeepOnAlert.isChecked()) {
@@ -249,7 +250,7 @@ public class PingControlActivity extends Activity {
 			//int returnVal = 0;		// Set ping return status to 0, which automatically declares it as fail
 
 		    try {
-		        return InetAddress.getByName(host).isReachable(1000); 
+		        return InetAddress.getByName(host).isReachable(3 * 1000 * m_Speed); 
 		    } catch (UnknownHostException e) {
 		        e.printStackTrace();
 		    } catch (IOException e) {

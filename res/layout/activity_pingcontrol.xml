@@ -27,10 +27,19 @@
         android:checked="false"
         android:text="@string/button_onoff" />
 
+    <CheckBox
+        android:id="@+id/checkBoxBeep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/radioGroup1"
+        android:layout_below="@id/radioGroup1"
+        android:text="@string/checkbox_sound" />
+
     <TextView
         android:id="@+id/txtStatus"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@id/checkBoxBeep"
         android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
         android:layout_marginTop="30dp"
@@ -56,14 +65,6 @@
             android:layout_height="wrap_content"
             android:text="@string/radiobutton_active" />
     </RadioGroup>
-
-    <CheckBox
-        android:id="@+id/checkBox2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/txtStatus"
-        android:layout_alignLeft="@+id/radioGroup1"
-        android:text="@string/checkbox_sound" />
 
     <Button
         android:id="@+id/buttonAlarm"
