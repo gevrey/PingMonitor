@@ -5,6 +5,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Calendar;
 
+import com.google.ads.*;
+
 import ch.cri.pingmonitor.util.SystemUiHider;
 import android.app.Activity;
 import android.app.AlarmManager;
@@ -13,6 +15,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -24,6 +27,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -54,6 +58,7 @@ public class PingControlActivity extends Activity {
 	RadioGroup m_RadioGroup;
 	CheckBox m_BeepOnAlert;
 	static final String TAG = "PingControlActivity";
+	static final String MY_AD_UNIT = "a151fd0a0001b1a";
 	Integer m_Speed = 5;
 	
 	private PendingIntent pendingIntent;
@@ -72,11 +77,52 @@ public class PingControlActivity extends Activity {
 	     }
 	}	
 
+
+//	@Override
+//	protected void onDestroy() {
+//		Log.d(TAG, "onDestroy");	
+//	}
+
+	//private AdView adView;
+	
+	@Override
+	public void onDestroy() {
+		// we save the settings when the users set the app to ON
+		SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+		SharedPreferences.Editor editor = settings.edit();
+		editor.putString("host", host);		    		
+    	editor.putInt("radioButtonId", m_RadioGroup.getCheckedRadioButtonId());
+    	editor.putBoolean("beepOnAlert", m_BeepOnAlert.isChecked());
+		editor.commit();		
+	    super.onDestroy();
+	}		
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_pingcontrol);
-	
+
+		//////////////////////////////////////////////////////////////////////////////////////////////
+		// ADS
+
+		// Look up the AdView as a resource and load a request.
+	    AdView adView = (AdView)this.findViewById(R.id.adView);
+	    adView.loadAd(new AdRequest());
+	    
+//	    // Create the adView
+//	    adView = new AdView(this, AdSize.BANNER, MY_AD_UNIT);
+//	    // Lookup your LinearLayout assuming it's been given
+//	    // the attribute android:id="@+id/mainLayout"
+//	    RelativeLayout layout = (RelativeLayout)findViewById(R.id.relativeLayout);
+//	    // Add the adView to it
+//	    layout.addView(adView);
+//	    // Initiate a generic request to load it with an ad
+//	    adView.loadAd(new AdRequest());
+
+		//////////////////////////////////////////////////////////////////////////////////////////////
+		
+		
+		
 		// Set UI View Elements
 		txtStatus = (TextView)findViewById(R.id.txtStatus);
 		m_ButtonOnOff = (ToggleButton) findViewById(R.id.toggleButtonOnOff);
@@ -86,7 +132,14 @@ public class PingControlActivity extends Activity {
 	    m_RadioGroup = (RadioGroup) findViewById(R.id.radioGroup1);
 	    m_BeepOnAlert = (CheckBox) findViewById(R.id.checkBoxBeep);
 
-	    View.OnClickListener myhandler1 = new View.OnClickListener() {
+	    // we read and load the settings
+		SharedPreferences settings = getSharedPreferences("UserInfo", 0);
+		m_EditText.setText(settings.getString("host", "127.0.0.1").toString());
+		Log.d(TAG, "radioButtionId: " + settings.getInt("radioButtonId", 0));
+		m_RadioGroup.check(settings.getInt("radioButtonId", R.id.radio0));
+		m_BeepOnAlert.setChecked(settings.getBoolean("beepOnAlert", false));
+		
+		View.OnClickListener myhandler1 = new View.OnClickListener() {
 		    public void onClick(View v) {
 			    host = m_EditText.getText().toString();
 		        //String myString;
@@ -97,8 +150,8 @@ public class PingControlActivity extends Activity {
 		        
 		        if (m_ButtonOnOff.isChecked()) {
 		    		Log.d(TAG, "starting pings");
-		        	m_EditText.setEnabled(false);
 
+		    		m_EditText.setEnabled(false);
 		        	registerReceiver(alarm, new IntentFilter("ch.cri.pingmonitor") );
 
 		        	Intent intent = new Intent("ch.cri.pingmonitor");
@@ -292,3 +345,4 @@ public class PingControlActivity extends Activity {
 	}
 	
 }
+

@@ -85,4 +85,16 @@
         android:textOff="@string/button_speed_fast"
         android:textOn="@string/button_speed_fast" />
 
+  <com.google.ads.AdView xmlns:ads="http://schemas.android.com/apk/lib/com.google.ads"
+       android:id="@+id/adView"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/txtStatus"
+ 	   android:layout_alignParentBottom="true"
+	   android:layout_alignParentLeft="true" 
+	   ads:adUnitId="a151fd0a0001b1a"
+       ads:adSize="BANNER"
+       ads:testDevices="TEST_EMULATOR, TEST_DEVICE_ID"
+       ads:loadAdOnCreate="true"/>        
+    
 </RelativeLayout>
